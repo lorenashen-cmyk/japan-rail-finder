@@ -1,0 +1,33 @@
+name: 每天更新價格
+
+on:
+  schedule:
+    - cron: "17 19 * * *"   # UTC 19:17 = 台灣時間每天 03:17
+  workflow_dispatch:         # 也可以在 Actions 頁面手動按「Run workflow」
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-prices
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 抓取 KKday 最新價格並更新 html
+        id: upd
+        run: python3 update_prices.py japan-rail-finder.html
+
+      - name: 有變動才提交
+        if: steps.upd.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add japan-rail-finder.html
+          git commit -m "自動更新價格 $(TZ=Asia/Taipei date +%Y-%m-%d)（${{ steps.upd.outputs.price_changes }} 筆變動）"
+          git push
