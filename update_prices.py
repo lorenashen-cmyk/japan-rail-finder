@@ -14,7 +14,12 @@ from concurrent.futures import ThreadPoolExecutor
 
 PATH = sys.argv[1] if len(sys.argv) > 1 else "japan-rail-finder.html"
 BASE = "https://www.kkday.com/zh-tw/transportation/japan-rail/"
-WORKERS = 4          # 同時請求數（不要太高，避免對 KKday 造成負擔）
+WORKERS = 6          # 同時請求數（不要太高，避免對 KKday 造成負擔）
+# 長尾路線（LTD）分成 SLICES 份，每天輪流更新其中一份（預設 7 份 = 每條路線每週更新一次）。
+# 主要商品卡（TC、CARDS）每天都全部更新。設 SLICES=1 可一次更新全部。
+SLICES = max(1, int(os.environ.get("SLICES", "7")))
+import datetime
+TODAY_SLICE = datetime.date.today().toordinal() % SLICES
 MAX_JUMP = 0.5       # 新價格與舊價格差超過 50% 視為異常，不採用
 MAX_FAIL_RATE = 0.2  # 失敗比例超過 20% 時整個流程標示失敗（不寫檔）
 
@@ -22,9 +27,9 @@ html = open(PATH, encoding="utf-8").read()
 
 
 def fetch(path):
-    for i in range(3):
+    for i in range(2):
         r = subprocess.run(
-            ["curl", "-s", "-L", "-A", "Mozilla/5.0", "--compressed", "-m", "40",
+            ["curl", "-s", "-L", "-A", "Mozilla/5.0", "--compressed", "-m", "25",
              "-w", "\n%{http_code} %{url_effective}", BASE + path],
             capture_output=True)
         out = r.stdout.decode("utf-8", "replace")
@@ -73,8 +78,8 @@ LTD = json.loads(m_ltd.group(1))
 
 jobs = [("TC", i, c["s"]) for i, c in enumerate(TC)]
 jobs += [("CARDS", i, c["u"]) for i, c in enumerate(CARDS)]
-jobs += [("LTD", i, "route/" + r[6]) for i, r in enumerate(LTD)]
-print(f"共 {len(jobs)} 個頁面要檢查", flush=True)
+jobs += [("LTD", i, "route/" + r[6]) for i, r in enumerate(LTD) if i % SLICES == TODAY_SLICE]
+print(f"共 {len(jobs)} 個頁面要檢查（長尾路線今天更新第 {TODAY_SLICE + 1}/{SLICES} 份）", flush=True)
 
 
 def run(j):
@@ -87,7 +92,7 @@ results = []
 with ThreadPoolExecutor(WORKERS) as ex:
     for n, r in enumerate(ex.map(run, jobs), 1):
         results.append(r)
-        if n % 100 == 0:
+        if n % 25 == 0:
             print(f"  已完成 {n}/{len(jobs)}", flush=True)
 
 failed = [r for r in results if r[3] is None or r[3]["p"] is None]
