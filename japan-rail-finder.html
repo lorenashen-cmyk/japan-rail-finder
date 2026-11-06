@@ -704,9 +704,10 @@ body.has-map .mapcol{display:block}
     if(c.t==='shin'||c.tn==='新幹線'||c.tn==='新幹線路線'||c.ln)return '新幹線';
     return '特急列車'}
   // 沒有專屬圖片的區間卡，統一用 KKday 日本鐵路頻道的封面圖
-  // 各新幹線路線的卡片圖（東北＋北海道／上越＋北陸＋秋田／東海道＋山陽；九州、西九州、山形沿用原圖）
+  // 各新幹線路線的卡片圖（東北＋北海道／上越＋北陸＋秋田／東海道＋山陽；西九州、山形沿用原圖；九州新幹線用 LI_D）
   var LI_A=IMG+'campaign_4386/20261008074356_sLYXz/jpg',LI_B=IMG+'campaign_4386/20261008080414_Rhky8/jpg',LI_C=IMG+'campaign_4386/20261008054242_Apjt7/jpg';
-  var LINEIMG={tohoku:LI_A,hokkaido:LI_A,joetsu:LI_B,hokuriku:LI_B,akita:LI_B,tokaido:LI_C,sanyo:LI_C};
+  var LI_D='https://image.kkday.com/v2/image/get/h_650%2Cc_fit/s1.kkday.com/product_3494/20210812080841_eZ5T3/jpg';
+  var LINEIMG={tohoku:LI_A,hokkaido:LI_A,joetsu:LI_B,hokuriku:LI_B,akita:LI_B,tokaido:LI_C,sanyo:LI_C,kyushu:LI_D};
   var RAILIMG='https://cdn.kkday.com/vodka-web/assets/trans_static/img/desktop/bg_japan_rail_index.webp';
   function pcard(c){
     var kind=kindOf(c),isT=!!c.s,name=c.n||(c.t==='sight'&&c.tn&&c.tn!=='新幹線'&&c.tn!=='新幹線路線'?c.tn:''),title=name||(shortName(c.f)+' – '+shortName(c.to));
