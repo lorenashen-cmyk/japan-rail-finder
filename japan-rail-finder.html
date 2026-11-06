@@ -440,7 +440,7 @@ body.has-map .mapcol{display:block}
       <div class="bar"><div class="cnt" id="cnt" aria-live="polite"></div></div>
       <div class="list" id="list"></div>
       <div class="pager" id="pager"><button id="prev">‹ 上一頁</button><span id="pgi"></span><button id="next">下一頁 ›</button></div>
-      <p class="note">價格為每日更新的參考最低售價（資料日期 2026/11/04）；觀光列車資訊整理自 KKday 日本觀光列車專頁。實際價格、時刻與名額以車票頁為準。</p>
+      <p class="note">價格為參考最低售價（資料日期 <span id="asof">2026/11/04</span>）；觀光列車資訊整理自 KKday 日本觀光列車專頁。實際價格、時刻與名額以車票頁為準。</p>
     </div>
   </div>
 </div>
@@ -703,9 +703,11 @@ body.has-map .mapcol{display:block}
     if(c.t==='sight'&&c.tn&&c.tn!=='新幹線'&&c.tn!=='新幹線路線')return '觀光列車';
     if(c.t==='shin'||c.tn==='新幹線'||c.tn==='新幹線路線'||c.ln)return '新幹線';
     return '特急列車'}
+  // 沒有專屬圖片的區間卡，統一用 KKday 日本鐵路頻道的封面圖
+  var RAILIMG='https://cdn.kkday.com/vodka-web/assets/trans_static/img/desktop/bg_japan_rail_index.webp';
   function pcard(c){
     var kind=kindOf(c),isT=!!c.s,name=c.n||(c.t==='sight'&&c.tn&&c.tn!=='新幹線'&&c.tn!=='新幹線路線'?c.tn:''),title=name||(shortName(c.f)+' – '+shortName(c.to));
-    var src=isT?TIMG[0]+c.i:(c.imu||(c.im?IMG+c.im:''));
+    var src=isT?TIMG[0]+c.i:(c.imu||(c.im?IMG+c.im:RAILIMG));
     var img=src?'<img class="tc-img" data-k="'+(isT?'0':'x')+'" src="'+esc(src)+'" alt="'+esc(title)+'"'+(isT?' width="375" height="289"':' onerror="this.style.display=\'none\'"')+'>':'<span class="ph2">'+esc(shortName(c.f))+' → '+esc(shortName(c.to))+'</span>';
     var rt=name?esc(shortName(c.f))+' → '+esc(shortName(c.to))+(c.via?'<span class="tc-via">　經 '+esc(c.via)+'</span>':'')+(c.d?'・行車約 '+c.d:''):(c.d?'行車約 '+c.d:'');
     var chips=c.a?'<ul class="tc-facts"><li class="fact">'+ic('clk')+'最早發車 '+hm(c.a)+'</li><li class="fact">'+ic('clk')+'最晚發車 '+hm(c.z)+'</li></ul>':'';
@@ -842,7 +844,7 @@ body.has-map .mapcol{display:block}
     TC.forEach(function(c){put(c,c.s)});
     CARDS.forEach(function(c){put(c,c.u)});
     LT.forEach(function(c){put(c,c.u)});
-    PRICES_ASOF=P.asof||'';draw()}
+    PRICES_ASOF=P.asof||'';var ao=$('asof');if(ao&&/^\d{4}-\d\d-\d\d$/.test(PRICES_ASOF))ao.textContent=PRICES_ASOF.replace(/-/g,'/');draw()}
   var PRICES_ASOF='';
   try{fetch('prices.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null}).then(function(P){if(P)applyPrices(P)}).catch(function(){})}catch(e){}
   // 通知外層 iframe 目前高度（外層有放對應的 script 才會自動調整；沒有的話就用固定高度）
