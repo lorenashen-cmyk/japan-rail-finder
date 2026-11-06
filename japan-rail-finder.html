@@ -572,15 +572,21 @@ body.has-map .mapcol{display:block}
     var x=f||tt;return matchEnd(x,c.f)||matchEnd(x,c.to)}
   function byPrice(x,y){return x.p-y.p}
   function order(list){var f=list.filter(function(c){return c.t!=='lt'}),l=list.filter(function(c){return c.t==='lt'}).sort(byPrice);return f.concat(l)}
+  // ---- 預設清單：只列觀光列車／特急列車，依熱門程度排序（旅客熱門度，可自行調整順序）----
+  var POP=['fuji-excursion','route/jp-narita-airport-terminal-1-rail-to-jp-tokyo-rail','route/jp-narita-airport-terminal-1-rail-to-jp-shinjuku-rail','odoriko','saphir-odoriko','limited-express-hida','thunderbird','yufuin-no-mori','route/jp-osaka-rail-to-jp-wakayama-rail','shinano','ibusuki-no-tamatebako','aso-boy','a-train','limited-express-hokuto','iyonada-monogatari','sl-yamaguchi','umisachi-yamasachi','route/jp-tomamu-rail-to-jp-sapporo-hokkaido-rail','route/jp-huis-ten-bosch-rail-to-jp-hakata-rail','kuroshio','marine-liner','etsetora','ametsuchi','limited-express-nanpu','shikoku-tosa-toki-no-yoake-no-monogatari','sl-fuyu-no-shitsugen','ryuhyo-monogatari','pokemon-with-you','resort-shirakami','sl-banetsu-monogatari','two-stars-4047','route/jp-niigata-rail-to-jp-akita-rail','route/jp-ichinoseki-rail-to-jp-geibikei-rail','route/jp-tokyo-rail-to-jp-totsuka-rail'];
+  var POPR={};POP.forEach(function(k,i){POPR[k]=i});
+  function popRank(c){var r=POPR[c.s||c.u];return r==null?999:r}
+  function isFeat(c){return c.t!=='lt'&&kindOf(c)!=='新幹線'}
+  function byPop(list){return list.map(function(c,i){return [c,i]}).sort(function(x,y){return popRank(x[0])-popRank(y[0])||x[1]-y[1]}).map(function(x){return x[0]})}
   function visible(){
     var a=st.applied;
-    var base=(a||st.line!=='all')?ALL.concat(LT):ALL;
+    var base=(a||st.line!=='all')?ALL.concat(LT):ALL.filter(isFeat);
     var pool=base.filter(function(c){
       if(st.rg!=='all'&&(!c.g||c.g.indexOf(st.rg)<0))return false;
       if(st.se!=='all'&&!(c.s&&SEAS[st.se].indexOf(c.s)>=0))return false;
       if(st.line!=='all'&&!a&&!onLine(c))return false;
       return true});
-    if(!a){pool=order(pool);return {rows:pool,n:pool.length,k:0,k2:0,k3:0,q:false}}
+    if(!a){pool=st.line==='all'?byPop(pool):order(pool);return {rows:pool,n:pool.length,k:0,k2:0,k3:0,q:false}}
     var regs=[];
     function addReg(x){if(x&&regs.indexOf(x)<0)regs.push(x)}
     if(a.train){var tc=TC.filter(function(c){return c.s===a.train.slug})[0];(tc?tc.g:[]).forEach(addReg)}
@@ -660,7 +666,7 @@ body.has-map .mapcol{display:block}
     var cond=[];if(st.line!=='all'&&!a)cond.push(LINEBY[st.line].n);if(a){if(a.train)cond.push(a.train.n);else{if(a.from)cond.push(lab(a.from)+'出發');if(a.to)cond.push('到'+lab(a.to))}}
     var filt=st.rg!=='all'||st.se!=='all'||st.line!=='all';
     var rst=(a||filt)?' <button id="reset" class="rst">清除條件</button>':'';
-    $('cnt').innerHTML=!rows.length?'沒有符合的商品'+rst:V.q?(V.n?'找到 <b>'+V.n+'</b> 個符合的商品'+(V.k?'，另有 <b>'+V.k+'</b> 個需分開買票的組合':''):V.k?'沒有一張票直達的商品，但有 <b>'+V.k+'</b> 個需分開買票的組合':rows.length?'沒有完全符合的商品，先看看同地區的推薦':'沒有符合的商品')+'<span>'+esc(cond.join('・'))+'</span>'+rst:'共 <b>'+rows.length+'</b> 個列車與路線'+rst;
+    $('cnt').innerHTML=!rows.length?'沒有符合的商品'+rst:V.q?(V.n?'找到 <b>'+V.n+'</b> 個符合的商品'+(V.k?'，另有 <b>'+V.k+'</b> 個需分開買票的組合':''):V.k?'沒有一張票直達的商品，但有 <b>'+V.k+'</b> 個需分開買票的組合':rows.length?'沒有完全符合的商品，先看看同地區的推薦':'沒有符合的商品')+'<span>'+esc(cond.join('・'))+'</span>'+rst:(st.line==='all'?'<b>精選觀光列車/特急列車</b>':'共 <b>'+rows.length+'</b> 個列車與路線')+rst;
     $('mapN').textContent=V.q?V.n:rows.length;
     var start=st.pg*PS,pg=rows.slice(start,start+PS),h='',du=directUrl(a);
     if(du&&st.pg===0)h+='<a class="cta-bar" href="'+du+'" target="_top"><span>直接查看「'+esc(a.train?a.train.n:lab(a.from)+' → '+lab(a.to))+'」所有班次與票價</span>'+ic('arr',16)+'</a>';
