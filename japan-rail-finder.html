@@ -824,6 +824,21 @@ body.has-map .mapcol{display:block}
   $('prev').onclick=function(){if(st.pg>0){st.pg--;draw()}};
   $('next').onclick=function(){st.pg++;draw()};
   draw();
+  // ---- 價格與發車時間：從 prices.json 載入（讀不到就沿用上面內嵌的資料）----
+  // prices.json 格式：{"asof":"YYYY-MM-DD","items":{"<KKday 頁面路徑>":{"p":起價,"d":"H時MM分","a":"HHMM","z":"HHMM"}}}
+  function applyPrices(P){
+    var it=P&&P.items;if(!it)return;var n=0;
+    function put(c,key){var v=it[key];if(!v)return;
+      if(typeof v.p==='number'&&v.p>0){if(c.p!==v.p)n++;c.p=v.p}
+      if(typeof v.d==='string'&&/^\d+時\d\d分$/.test(v.d))c.d=v.d;
+      if(typeof v.a==='string'&&/^\d{4}$/.test(v.a))c.a=v.a;
+      if(typeof v.z==='string'&&/^\d{4}$/.test(v.z))c.z=v.z}
+    TC.forEach(function(c){put(c,c.s)});
+    CARDS.forEach(function(c){put(c,c.u)});
+    LT.forEach(function(c){put(c,c.u)});
+    PRICES_ASOF=P.asof||'';draw()}
+  var PRICES_ASOF='';
+  try{fetch('prices.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null}).then(function(P){if(P)applyPrices(P)}).catch(function(){})}catch(e){}
   // 通知外層 iframe 目前高度（外層有放對應的 script 才會自動調整；沒有的話就用固定高度）
   var lastH=0;function post(){var h=Math.ceil(document.body.getBoundingClientRect().height);if(h!==lastH){lastH=h;try{parent.postMessage({kkfind:'height',h:h},'*')}catch(e){}}}
   if(window.ResizeObserver)new ResizeObserver(post).observe(document.body);window.addEventListener('load',post);window.addEventListener('resize',post);
