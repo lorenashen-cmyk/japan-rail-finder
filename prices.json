@@ -43,7 +43,7 @@
 "route/jp-nagoya-rail-to-jp-kyoto-rail":{"p":1168,"d":"0時34分","a":"0620","z":"2307"},
 "shinkansen/jp-kyoto-rail-to-jp-tokyo-rail":{"p":3011,"d":"2時07分","a":"0614","z":"2138"},
 "shinkansen/jp-nagoya-rail-to-jp-tokyo-rail":{"p":2387,"d":"1時55分","a":"0620","z":"2212"},
-"shinkansen/jp-shin-osaka-rail-to-jp-tokyo-rail":{"p":3136,"d":"2時23分","a":"0600","z":"2124"},
+"route/jp-shin-osaka-rail-to-jp-tokyo-rail":{"p":3136,"d":"2時23分","a":"0600","z":"2124"},
 "shinkansen/jp-shin-osaka-rail-to-jp-nagoya-rail":{"p":1342,"d":"0時48分","a":"0600","z":"2230"},
 "route/jp-tokyo-rail-to-jp-hiroshima-rail":{"p":4155,"d":"3時54分","a":"0600","z":"2000"},
 "route/jp-nagoya-rail-to-jp-hakata-rail":{"p":4031,"d":"3時18分","a":"0620","z":"2033"},
