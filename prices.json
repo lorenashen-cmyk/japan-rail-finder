@@ -1096,8 +1096,5 @@
 "route/jp-kagoshimachuo-rail-to-jp-shin-kobe-rail":{"p":5146,"d":"3時32分","a":"0635","z":"1951"},
 "route/jp-kagoshimachuo-rail-to-jp-shin-tosu-rail":{"p":2482,"d":"1時27分","a":"0600","z":"2219"},
 "route/jp-kagoshimachuo-rail-to-jp-kumamoto-rail":{"p":1681,"d":"1時01分","a":"0600","z":"2301"},
-"route/jp-kyoto-rail-to-jp-otsu-rail":{"p":217,"d":"0時09分","a":"1951","z":"2134"},
-"route/jp-osaka-to-jp-tokyo":{"p":3136,"d":"2時23分","a":"0600","z":"2124"},
-"route/jp-osaka-to-jp-tokyo-rail":{"p":3136,"d":"2時23分","a":"0600","z":"2124"},
-"route/jp-shin-osaka-rail-to-jp-tokyo":{"p":3136,"d":"2時23分","a":"0600","z":"2124"}
+"route/jp-kyoto-rail-to-jp-otsu-rail":{"p":217,"d":"0時09分","a":"1951","z":"2134"}
 }}
