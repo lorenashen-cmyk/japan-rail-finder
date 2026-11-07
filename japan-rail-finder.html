@@ -837,19 +837,31 @@ body.has-map .mapcol{display:block}
   $('prev').onclick=function(){if(st.pg>0){st.pg--;draw()}};
   $('next').onclick=function(){st.pg++;draw()};
   // ---- 記住使用者選的條件：點商品卡離開、再按上一頁回來時，還原原本的設定（存在這個分頁的 sessionStorage）----
+  // 狀態分三層保存：① 這個分頁 ② 瀏覽器本機（15 分鐘內有效）③ 外層活動頁（KKday 網域，透過 postMessage，App 內建網頁檢視擋掉 iframe 儲存空間時也能用）
+  var holdParent=true,userMoved=false;
+  function postP(o){try{parent.postMessage(o,'*')}catch(e){}}
+  function isDefaultSt(){return !st.from&&!st.to&&!st.applied&&st.rg==='all'&&st.se==='all'&&st.line==='all'&&!st.pg&&!st.stAll}
   function saveSt(){var v=JSON.stringify({from:st.from,to:st.to,pg:st.pg,applied:st.applied,rg:st.rg,se:st.se,line:st.line,stAll:st.stAll});
     try{sessionStorage.setItem('kkjrf-state-v1',v)}catch(e){}
-    try{localStorage.setItem('kkjrf-state-v1',JSON.stringify({t:Date.now(),v:v}))}catch(e){}}   // 本機再存一份（App 換新視窗時還能還原），15 分鐘內有效
+    try{localStorage.setItem('kkjrf-state-v1',JSON.stringify({t:Date.now(),v:v}))}catch(e){}
+    if(!holdParent)postP({kkfind:'save',v:v,def:isDefaultSt()})}
   function readSt(){var v=null;try{v=sessionStorage.getItem('kkjrf-state-v1')}catch(e){}
     if(!v){try{var o=JSON.parse(localStorage.getItem('kkjrf-state-v1')||'null');if(o&&o.v&&Date.now()-o.t<15*60*1000)v=o.v}catch(e){}}
     return v}
-  function loadSt(){try{var o=JSON.parse(readSt()||'null');if(!o||typeof o!=='object')return;
+  function applyState(raw){try{var o=JSON.parse(raw||'null');if(!o||typeof o!=='object')return false;
     var rgOk=REG.some(function(r){return r[0]===o.rg}),seOk=SEA.some(function(r){return r[0]===o.se});
     st.rg=rgOk?o.rg:'all';st.se=seOk?o.se:'all';st.line=(o.line==='all'||LINEBY[o.line])?o.line:'all';
     st.from=o.from&&o.from.name?o.from:null;st.to=o.to&&o.to.name?o.to:null;
     st.applied=(o.applied&&typeof o.applied==='object')?o.applied:null;
-    st.pg=(typeof o.pg==='number'&&o.pg>=0)?o.pg:0;st.stAll=!!o.stAll}catch(e){}}
+    st.pg=(typeof o.pg==='number'&&o.pg>=0)?o.pg:0;st.stAll=!!o.stAll;return true}catch(e){return false}}
+  function loadSt(){applyState(readSt())}
   loadSt();
+  // 向外層活動頁要回上次的狀態（外層沒有對應程式、或一直沒回應，1.5 秒後就當作沒有，改成正常存檔）
+  ['pointerdown','keydown','touchstart'].forEach(function(n){document.addEventListener(n,function(){userMoved=true},true)});
+  window.addEventListener('message',function(e){var d=e.data;if(!d||d.kkfind!=='state'||e.source!==parent)return;
+    var wasHold=holdParent;holdParent=false;
+    if(wasHold&&!userMoved&&typeof d.v==='string'&&d.v&&d.v!==readSt()){if(applyState(d.v))draw()}else if(wasHold){saveSt()}});
+  postP({kkfind:'get'});setTimeout(function(){if(holdParent){holdParent=false;saveSt()}},1500);
   draw();
   // ---- 價格與發車時間：從 prices.json 載入（讀不到就沿用上面內嵌的資料）----
   // prices.json 格式：{"asof":"YYYY-MM-DD","items":{"<KKday 頁面路徑>":{"p":起價,"d":"H時MM分","a":"HHMM","z":"HHMM"}}}
