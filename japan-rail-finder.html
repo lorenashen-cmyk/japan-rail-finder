@@ -837,8 +837,13 @@ body.has-map .mapcol{display:block}
   $('prev').onclick=function(){if(st.pg>0){st.pg--;draw()}};
   $('next').onclick=function(){st.pg++;draw()};
   // ---- 記住使用者選的條件：點商品卡離開、再按上一頁回來時，還原原本的設定（存在這個分頁的 sessionStorage）----
-  function saveSt(){try{sessionStorage.setItem('kkjrf-state-v1',JSON.stringify({from:st.from,to:st.to,pg:st.pg,applied:st.applied,rg:st.rg,se:st.se,line:st.line,stAll:st.stAll}))}catch(e){}}
-  function loadSt(){try{var o=JSON.parse(sessionStorage.getItem('kkjrf-state-v1')||'null');if(!o||typeof o!=='object')return;
+  function saveSt(){var v=JSON.stringify({from:st.from,to:st.to,pg:st.pg,applied:st.applied,rg:st.rg,se:st.se,line:st.line,stAll:st.stAll});
+    try{sessionStorage.setItem('kkjrf-state-v1',v)}catch(e){}
+    try{localStorage.setItem('kkjrf-state-v1',JSON.stringify({t:Date.now(),v:v}))}catch(e){}}   // 本機再存一份（App 換新視窗時還能還原），15 分鐘內有效
+  function readSt(){var v=null;try{v=sessionStorage.getItem('kkjrf-state-v1')}catch(e){}
+    if(!v){try{var o=JSON.parse(localStorage.getItem('kkjrf-state-v1')||'null');if(o&&o.v&&Date.now()-o.t<15*60*1000)v=o.v}catch(e){}}
+    return v}
+  function loadSt(){try{var o=JSON.parse(readSt()||'null');if(!o||typeof o!=='object')return;
     var rgOk=REG.some(function(r){return r[0]===o.rg}),seOk=SEA.some(function(r){return r[0]===o.se});
     st.rg=rgOk?o.rg:'all';st.se=seOk?o.se:'all';st.line=(o.line==='all'||LINEBY[o.line])?o.line:'all';
     st.from=o.from&&o.from.name?o.from:null;st.to=o.to&&o.to.name?o.to:null;
