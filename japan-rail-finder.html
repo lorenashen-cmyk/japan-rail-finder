@@ -655,6 +655,7 @@ body.has-map .mapcol{display:block}
     var f=a.from,tt=a.to;if(f&&tt&&f.type==='station'&&tt.type==='station'){var x=ST[f.name],y=ST[tt.name];if(x&&y&&x!==y)return url('shinkansen/'+seoOf(x)+'-to-'+seoOf(y))}
     return null}
   function draw(){
+    saveSt();
     syncInputs();
     $('hint').innerHTML='小提示：可直接選城市，例如「東京 → 北海道」；沒有直達的區間，會列出需分開買 2～3 張票的組合。也可輸入車站或<b>列車名稱</b>。';
     $('filters').style.display='block';
@@ -835,6 +836,15 @@ body.has-map .mapcol{display:block}
   $('cnt').onclick=function(e){if(e.target.id==='reset'){st.from=st.to=null;st.applied=null;st.rg='all';st.se='all';st.line='all';st.pg=0;draw()}};
   $('prev').onclick=function(){if(st.pg>0){st.pg--;draw()}};
   $('next').onclick=function(){st.pg++;draw()};
+  // ---- 記住使用者選的條件：點商品卡離開、再按上一頁回來時，還原原本的設定（存在這個分頁的 sessionStorage）----
+  function saveSt(){try{sessionStorage.setItem('kkjrf-state-v1',JSON.stringify({from:st.from,to:st.to,pg:st.pg,applied:st.applied,rg:st.rg,se:st.se,line:st.line,stAll:st.stAll}))}catch(e){}}
+  function loadSt(){try{var o=JSON.parse(sessionStorage.getItem('kkjrf-state-v1')||'null');if(!o||typeof o!=='object')return;
+    var rgOk=REG.some(function(r){return r[0]===o.rg}),seOk=SEA.some(function(r){return r[0]===o.se});
+    st.rg=rgOk?o.rg:'all';st.se=seOk?o.se:'all';st.line=(o.line==='all'||LINEBY[o.line])?o.line:'all';
+    st.from=o.from&&o.from.name?o.from:null;st.to=o.to&&o.to.name?o.to:null;
+    st.applied=(o.applied&&typeof o.applied==='object')?o.applied:null;
+    st.pg=(typeof o.pg==='number'&&o.pg>=0)?o.pg:0;st.stAll=!!o.stAll}catch(e){}}
+  loadSt();
   draw();
   // ---- 價格與發車時間：從 prices.json 載入（讀不到就沿用上面內嵌的資料）----
   // prices.json 格式：{"asof":"YYYY-MM-DD","items":{"<KKday 頁面路徑>":{"p":起價,"d":"H時MM分","a":"HHMM","z":"HHMM"}}}
