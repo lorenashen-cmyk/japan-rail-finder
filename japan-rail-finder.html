@@ -669,21 +669,21 @@ body.has-map .mapcol{display:block}
     $('cnt').innerHTML=!rows.length?'沒有符合的商品'+rst:V.q?(V.n?'找到 <b>'+V.n+'</b> 個符合的商品'+(V.k?'，另有 <b>'+V.k+'</b> 個需分開買票的組合':''):V.k?'沒有一張票直達的商品，但有 <b>'+V.k+'</b> 個需分開買票的組合':rows.length?'沒有完全符合的商品，先看看同地區的推薦':'沒有符合的商品')+'<span>'+esc(cond.join('・'))+'</span>'+rst:(st.line==='all'?'<b>精選觀光列車/特急列車</b>':'共 <b>'+rows.length+'</b> 個列車與路線')+rst;
     $('mapN').textContent=V.q?V.n:rows.length;
     var start=st.pg*PS,pg=rows.slice(start,start+PS),h='',du=directUrl(a);
-    if(du&&st.pg===0)h+='<a class="cta-bar" href="'+du+'" target="_top"><span>直接查看「'+esc(a.train?a.train.n:lab(a.from)+' → '+lab(a.to))+'」所有班次與票價</span>'+ic('arr',16)+'</a>';
+    if(du&&st.pg===0)h+='<a class="cta-bar" href="'+du+'" target="_blank" rel="noopener"><span>直接查看「'+esc(a.train?a.train.n:lab(a.from)+' → '+lab(a.to))+'」所有班次與票價</span>'+ic('arr',16)+'</a>';
     pg.forEach(function(c,k){var gi=start+k;
       if(V.q&&V.n>0&&gi===0)h+='<div class="sep hit">符合的商品</div>';
       if(V.q&&V.k2>0&&gi===V.n)h+='<div class="sep combo-sep">需分開購買 2 張票的組合<small>（沒有一張票直達的目的地）</small></div>';
       if(V.q&&V.k3>0&&gi===V.n+V.k2)h+='<div class="sep combo-sep">需分開購買 3 張票的組合<small>（轉乘 2 次，請自行確認轉乘時間）</small></div>';
       if(V.q&&gi===V.n+V.k)h+='<div class="sep">'+(V.n||V.k?'同地區的其他列車與路線':'同地區的推薦')+'</div>';
       h+=c.t==='combo'?ccard(c):c.s?tcard(c):rcard(c)});
-    $('list').innerHTML=pg.length?h:h+'<div class="empty"><b>'+(st.line!=='all'&&!a?'「'+LINEBY[st.line].n+'」目前沒有收錄的商品卡':'目前沒有符合的商品')+'</b>'+(st.line!=='all'&&!a?'可以點地圖上的車站，設定出發地與目的地後直接查詢該區間。':'可以換個區域、季節或車站試試，也可以直接輸入列車名稱。')+'<br><a href="'+(du||url(''))+'" target="_top">'+(du?'直接查詢這個區間':'前往日本鐵路訂票頁')+'</a></div>';
+    $('list').innerHTML=pg.length?h:h+'<div class="empty"><b>'+(st.line!=='all'&&!a?'「'+LINEBY[st.line].n+'」目前沒有收錄的商品卡':'目前沒有符合的商品')+'</b>'+(st.line!=='all'&&!a?'可以點地圖上的車站，設定出發地與目的地後直接查詢該區間。':'可以換個區域、季節或車站試試，也可以直接輸入列車名稱。')+'<br><a href="'+(du||url(''))+'" target="_blank" rel="noopener">'+(du?'直接查詢這個區間':'前往日本鐵路訂票頁')+'</a></div>';
     $('prev').disabled=st.pg===0;$('next').disabled=st.pg>=tp-1;$('pgi').innerHTML='第 <b>'+(st.pg+1)+'</b> / '+tp+' 頁';
     $('pager').style.display=tp>1?'flex':'none';
   }
   function dm(m){return Math.floor(m/60)+'時'+('0'+(m%60)).slice(-2)+'分'}
   function ccard(c){
     var N=c.legs.length,vias=c.legs.slice(0,-1).map(function(e){return esc(shortName(e.to))}).join('、');
-    var legs=c.legs.map(function(e,i){return '<a class="leg" href="'+url(e.u)+'" target="_top"><span class="no">'+(i+1)+'</span><span class="lt">'+esc(shortName(e.f))+' → '+esc(shortName(e.to))+'<small>行車約 '+e.d+'・'+hm(e.a)+'–'+hm(e.z)+' 發車</small></span><b>NT$ '+money(e.p)+' 起</b>'+ic('arr',16)+'</a>'}).join('');
+    var legs=c.legs.map(function(e,i){return '<a class="leg" href="'+url(e.u)+'" target="_blank" rel="noopener"><span class="no">'+(i+1)+'</span><span class="lt">'+esc(shortName(e.f))+' → '+esc(shortName(e.to))+'<small>行車約 '+e.d+'・'+hm(e.a)+'–'+hm(e.z)+' 發車</small></span><b>NT$ '+money(e.p)+' 起</b>'+ic('arr',16)+'</a>'}).join('');
     return '<div class="tcard combo"><div class="tc-media noimg"><span class="ph2">'+esc(shortName(c.f))+' → '+esc(shortName(c.to))+'</span><span class="ttag">'+ic('tk')+'分開購買 '+N+' 張票</span></div>'+
       '<div class="tc-body"><h3 class="tc-title">'+esc(shortName(c.f))+' → '+esc(shortName(c.to))+'</h3><p class="tc-route">'+ic('train',16)+'<span>在 <b>'+vias+'</b> 轉乘・車程合計約 '+dm(c.m)+'<span class="tc-via">（不含轉乘等候）</span></span></p>'+
       '<div class="legs">'+legs+'</div><p class="tot">'+N+' 段合計 <b>NT$ '+money(c.p)+'</b> 起</p></div></div>'}
@@ -691,7 +691,7 @@ body.has-map .mapcol{display:block}
     var nm=c.n||(shortName(c.f)+' – '+shortName(c.to));
     var pic=c.imu?'<div class="pic"><img src="'+c.imu+'" alt="" onerror="this.style.display=\'none\'">':c.im?'<div class="pic"><img src="'+IMG+c.im+'" alt="" onerror="this.parentNode.classList.add(\'noimg\',\'k-'+c.k+'\');this.outerHTML=\'<span class=ph>'+esc(shortName(c.f))+' → '+esc(shortName(c.to))+'</span>\'">':'<div class="pic noimg k-'+c.k+'"><span class="ph">'+esc(shortName(c.f))+' → '+esc(shortName(c.to))+'</span>';
     pic+='<span class="tag k-'+c.k+'">'+(c.tn?esc(c.tn):c.k)+'</span></div>';
-    return '<a class="card" href="'+url(c.u)+'" target="_top">'+pic+'<div class="bd"><p class="nm">'+esc(nm)+'</p><p class="du">'+(c.n?esc(shortName(c.f))+' – '+esc(shortName(c.to))+'・':'')+c.d+'</p>'+
+    return '<a class="card" href="'+url(c.u)+'" target="_blank" rel="noopener">'+pic+'<div class="bd"><p class="nm">'+esc(nm)+'</p><p class="du">'+(c.n?esc(shortName(c.f))+' – '+esc(shortName(c.to))+'・':'')+c.d+'</p>'+
       '<div class="tm"><span>'+CLOCK+'最早發車時間</span><b>'+hm(c.a)+'</b></div><div class="tm"><span>'+CLOCK+'最晚發車時間</span><b>'+hm(c.z)+'</b></div>'+
       '<div class="px">NT$<b>'+money(c.p)+'</b>起</div></div></a>'}
   var I={cal:'<path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/>',train:'<rect x="5" y="3" width="14" height="14" rx="3"/><path d="M5 11h14M9 21l2-4M15 21l-2-4M9 7h.01M15 7h.01"/>',ok:'<path d="m5 12 5 5 9-10"/>',tk:'<path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4zM14 7v10" stroke-dasharray="2 2"/>',clk:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5h4"/>',arr:'<path d="m9 6 6 6-6 6"/>'};
@@ -721,7 +721,7 @@ body.has-map .mapcol{display:block}
     var price=c.p?'NT$ '+money(c.p)+' 起・查看票價與訂票':'查看票價與訂票';
     var sch=isT&&c.t&&c.t!=='每日'?c.t:'',schTx=sch&&innerWidth<=599?(({'週末與假日為主':'假日為主','週五至週一為主':'週五至週一'})[sch]||sch):sch;
     var kc=kind==='觀光列車'?'k1':kind==='特急列車'?'k2':kind==='快速列車'?'k4':'k3';
-    return '<a class="tcard'+(sch?' has-badge '+(sch.length>4?'bl':'bs'):'')+'" '+(isT?'data-s="'+esc(c.s)+'" ':'')+'href="'+url(isT?c.s:c.u)+'" target="_top"><div class="tc-media'+(src?'':' noimg')+'">'+img+'<span class="ttag '+kc+'">'+ic('train')+esc(kind)+'</span></div>'+(sch?'<span class="cbadge">'+ic('cal')+esc(schTx)+'</span>':'')+
+    return '<a class="tcard'+(sch?' has-badge '+(sch.length>4?'bl':'bs'):'')+'" '+(isT?'data-s="'+esc(c.s)+'" ':'')+'href="'+url(isT?c.s:c.u)+'" target="_blank" rel="noopener"><div class="tc-media'+(src?'':' noimg')+'">'+img+'<span class="ttag '+kc+'">'+ic('train')+esc(kind)+'</span></div>'+(sch?'<span class="cbadge">'+ic('cal')+esc(schTx)+'</span>':'')+
       '<div class="tc-body"><h3 class="tc-title">'+esc(title)+'</h3>'+(isT&&c.ja?'<p class="tc-ja" lang="ja">'+esc(c.ja)+'</p>':'')+(rt?'<p class="tc-route">'+ic('train',16)+'<span>'+rt+'</span></p>':'')+chips+facts+
       '<span class="tc-cta">'+price+ic('arr',16)+'</span></div></a>'}
   function tcard(c){return pcard(c)}
